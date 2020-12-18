@@ -1,0 +1,59 @@
+﻿@model EntityLayer.CustomEntity
+@{
+    ViewData["Title"] = "Razor";
+}
+<h1>@ViewData["Title"]</h1>
+<br />
+<div class="row">
+    <div class="col">
+        <label>Customers</label>
+        <select>
+            @foreach (var customer in @Model.Customers)
+            {
+                <option value="@customer.CustomerID">@customer.CompanyName</option>
+            }
+        </select>
+    </div>
+    <div class="col">
+        <label>Employees</label>
+        <select>
+            @foreach (var employee in @Model.Employees)
+            {
+                <option value="@employee.EmployeeID">@employee.FirstName @employee.LastName</option>
+            }
+        </select>
+    </div>
+    @*<div>
+            <button type="button" class="btn btn-primary">Güncelle</button>
+            <button type="button" class="btn btn-primary">Sil</button>
+        </div>*@
+</div>
+<br />
+<div class="text-center">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">ShipName</th>
+                <th scope="col">CustomerId</th>
+                <th scope="col">CompanyName</th>
+                <th scope="col">EmployeeId</th>
+                <th scope="col">FirstName - LastName</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in @Model.Orders)
+            {
+                <tr>
+                    <th scope="row">@item.OrderID</th>
+                    <td><input type="text" value="@item.ShipName" /></td>
+                    <td>@item.CustomerID</td>
+                    <td>@item.Customer.CompanyName</td>
+                    <td>@item.EmployeeId</td>
+                    <td>@item.Employee.FirstName @item.Employee.LastName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

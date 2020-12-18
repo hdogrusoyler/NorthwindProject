@@ -1,0 +1,8 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "devDependencies": {},
+  "dependencies": {
+    "angularjs": "1.8.2"
+  }
+}

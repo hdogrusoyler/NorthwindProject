@@ -1,0 +1,119 @@
+﻿@{
+    ViewData["Title"] = "Order List";
+}
+<h1>@ViewData["Title"]</h1>
+<br />
+<div ng-app="app">
+    <div ng-controller="order">
+        <div class="input-group">
+            <select ng-model="customerId">
+                <option ng-repeat="item in customerList" value="{{item.customerID}}" ng-bind="item.companyName"></option>
+            </select>
+            <select ng-model="employeeId">
+                <option ng-repeat="item in employeeList" value="{{item.employeeID}}" ng-bind="item.firstName +' '+ item.lastName"></option>
+            </select>
+            <input type="text" class="form-control" ng-model="shipName">
+            <div class="input-group-append" id="button-addon4">
+                <button class="btn btn-outline-secondary" type="button" ng-click="Add(shipName)">Ekle</button>
+            </div>
+        </div>
+        <div class="text-center" ng-init="Init()">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="item in orderList">
+                    <div class="input-group">
+                        @*<label class="form-control" ng-bind="item.customer.companyName"></label>>*@
+                        @*<label class="form-control" ng-bind="item.employee.firstName +' '+ item.employee.lastName"></label>*@
+                        <select>
+                            <option ng-selected="item.customerID == customer.customerID" ng-repeat="customer in customerList" value="{{customer.customerID}}" ng-bind="customer.companyName"></option>
+                        </select>
+                        <select>
+                            <option ng-selected="item.employeeId == employee.employeeID" ng-repeat="employee in employeeList" value="{{employee.employeeID}}" ng-bind="employee.firstName +' '+ employee.lastName"></option>
+                        </select>
+                        <input type="text" class="form-control" ng-model="item.shipName">
+                        <div class="input-group-append" id="button-addon4">
+                            <button class="btn btn-outline-secondary" type="button" ng-click="Update(item, $event, $index)">Güncelle</button>
+                            <button class="btn btn-outline-secondary" type="button" ng-click="Delete(item, $index)">Sil</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var deps = [];
+    var app = angular.module("app", deps);
+    (function () {
+        app.controller('order', function ($scope, $http, $httpParamSerializerJQLike) {
+            $scope.orderList = [];
+            $scope.customerList = [];
+            $scope.employeeList = [];
+            $scope.shipName = "";
+            $scope.customerId = "";
+            $scope.employeeId = "";
+            $scope.Init = function () {
+                $http.get('/Order/GetOrderList').then(function (result) {
+                    $scope.orderList = result.data;
+                });
+                $http.get('/Order/GetCustomerList').then(function (result) {
+                    $scope.customerList = result.data;
+                });
+                $http.get('/Order/GetEmployeeList').then(function (result) {
+                    $scope.employeeList = result.data;
+                });
+            };
+            $scope.Add = function (shipName) {
+                var requestData = {
+                    shipName: $scope.shipName,
+                    customerId: $scope.customerId,
+                    employeeId: $scope.employeeId
+                }
+                $http({
+                    method: 'POST',
+                    url: '/Order/AddOrder',
+                    data: $httpParamSerializerJQLike(requestData),
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                }).then(function (result) {
+                    $scope.Init();
+                    $scope.shipName = "";
+                    $scope.customerId = "";
+                    $scope.employeeId = "";
+                });
+            };
+            $scope.Update = function (item, event, index) {
+                var requestData = {
+                    shipName: $scope.shipName,
+                    customerId: $scope.customerId,
+                    employeeId: $scope.employeeId
+                }
+                var elements = angular.element(event.target).parent().parent().children();
+                var requestOrder = {
+                    orderID: item.orderID,
+                    customerId: elements[0].value,
+                    employeeId: elements[1].value,
+                    shipName: elements[2].value
+                }
+                $http({
+                    method: 'POST',
+                    url: '/Order/UpdateOrder',
+                    data: $httpParamSerializerJQLike(requestOrder),
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                }).then(function (result) {
+                    $scope.Init();
+                });
+            };
+            $scope.Delete = function (item, index) {
+                $http({
+                    method: 'POST',
+                    url: '/Order/DeleteOrder',
+                    data: $httpParamSerializerJQLike({ orderID: item.orderID }),
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                }).then(function (result) {
+                    $scope.Init();
+                });
+            };
+        });
+    }).call(angular)
+</script>
